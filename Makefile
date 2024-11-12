@@ -54,14 +54,15 @@ Pi4-32 Pi400-32 PiCM4-32: clean
 
 build:
 	mkdir -p build
-	docker build \
+	set -o pipefail; docker build \
 		--build-arg RASPIOS=$(raspios) \
 		--build-arg DEFCONFIG=$(defconfig) \
 		--build-arg KERNEL=$(kernel) \
 		--build-arg ARCH=$(arch) \
 		--build-arg CROSS_COMPILE=$(compiler) \
 		--build-arg TARGET=$(target) \
-		-t rpi-rt-linux .
+		--progress=plain \
+		-t rpi-rt-linux . 2>&1 | tee build.log
 	docker rm tmp-rpi-rt-linux || true
 	docker run --privileged --name tmp-rpi-rt-linux rpi-rt-linux /raspios/build.sh
 	docker cp tmp-rpi-rt-linux:/raspios/build/ ./
